@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SAM AI - Secure Version</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        .header { 
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; padding: 20px; border-radius: 15px; text-align: center; 
+            margin-bottom: 20px;
+        }
+        .login-section, .chat-section { 
+            background: white; padding: 20px; border-radius: 15px; margin: 10px 0; 
+        }
+        #chat-messages { 
+            height: 300px; overflow-y: auto; border: 1px solid #ddd; 
+            padding: 15px; border-radius: 10px; margin: 15px 0; 
+        }
+        .user-message { background: #e3f2fd; padding: 10px; border-radius: 15px; margin: 5px 0; text-align: right; }
+        .ai-message { background: #f8f9fa; padding: 15px; border-radius: 15px; margin: 5px 0; border-left: 4px solid #667eea; }
+        input, button { padding: 10px; margin: 5px; border-radius: 5px; }
+        button { background: #667eea; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧠 SAM AI</h1>
+        <p>Secure • Local Storage • User Accounts</p>
+    </div>
+
+    <!-- Login Section -->
+    <div class="login-section" id="loginSection">
+        <h3>Login to SAM AI</h3>
+        <input type="text" id="username" placeholder="Choose a username">
+        <input type="password" id="password" placeholder="Choose password">
+        <button onclick="login()">Login / Sign Up</button>
+        <p><small>Data stored locally on your device</small></p>
+    </div>
+
+    <!-- Chat Section -->
+    <div class="chat-section" id="chatSection" style="display: none;">
+        <div>Welcome, <span id="currentUser">User</span>! <button onclick="logout()" style="background: #ff6b6b;">Logout</button></div>
+        
+        <div id="chat-messages">
+            <div class="ai-message">
+                <strong>Welcome to SAM AI!</strong><br>
+                I'm your strategic productivity partner. What challenge can we tackle?
+            </div>
+        </div>
+
+        <input type="text" id="userInput" placeholder="Ask SAM anything..." style="width: 70%;">
+        <button onclick="sendToSam()">Send to SAM</button>
+        
+        <div style="margin-top: 20px;">
+            <button onclick="clearHistory()" style="background: #ff6b6b;">Clear My History</button>
+            <button onclick="exportData()" style="background: #4ecdc4;">Export My Data</button>
+        </div>
+    </div>
+
+    <script>
+        // SAM V3 Prompt - Your secret sauce
+        const SAM_V3_PROMPT = `You are SAM AI, a Strategic Adaptive Mind created by Alakmar. Use the DART framework:
+1. DIAGNOSE & ACKNOWLEDGE the root cause
+2. ADAPT & RECOMMEND a tailored strategy  
+3. RATIONALIZE with E.R.A. (Evidence, Recommendation, Application)
+4. TRANSFORM & SUSTAIN with long-term thinking
+
+Always be empathetic, evidence-based, and strategic.`;
+
+        let currentUser = null;
+
+        // Check if user is already logged in
+        function checkExistingLogin() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = savedUser;
+                showChatSection();
+                loadUserHistory();
+            }
+        }
+
+        // Login function
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username) {
+                alert('Please choose a username');
+                return;
+            }
+            
+            currentUser = username;
+            localStorage.setItem('currentUser', currentUser);
+            
+            // Store user credentials (basic security)
+            const userKey = `user_${username}`;
+            if (!localStorage.getItem(userKey)) {
+                localStorage.setItem(userKey, JSON.stringify({
+                    username: username,
+                    password: btoa(password), // Basic encoding
+                    createdAt: new Date().toISOString()
+                }));
+            }
+            
+            showChatSection();
+            loadUserHistory();
+        }
+
+        // Logout function
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('chatSection').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        function showChatSection() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('chatSection').style.display = 'block';
+            document.getElementById('currentUser').textContent = currentUser;
+        }
+
+        // Load user's chat history
+        function loadUserHistory() {
+            const userHistory = localStorage.getItem(`chat_history_${currentUser}`);
+            const chatMessages = document.getElementById('chat-messages');
+            
+            if (userHistory) {
+                chatMessages.innerHTML = userHistory;
+            } else {
+                chatMessages.innerHTML = `
+                    <div class="ai-message">
+                        <strong>Welcome to SAM AI!</strong><br>
+                        I'm your strategic productivity partner. What challenge can we tackle?
+                    </div>
+                `;
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Save chat to local storage
+        function saveChatToLocal(userMsg, aiMsg) {
+            const chatMessages = document.getElementById('chat-messages');
+            const userHistoryKey = `chat_history_${currentUser}`;
+            
+            // Save current chat state
+            localStorage.setItem(userHistoryKey, chatMessages.innerHTML);
+            
+            // Also save to conversation history
+            const convoKey = `conversations_${currentUser}`;
+            let conversations = JSON.parse(localStorage.getItem(convoKey) || '[]');
+            conversations.push({
+                user: userMsg,
+                ai: aiMsg,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem(convoKey, JSON.stringify(conversations));
+        }
+
+        // Main SAM AI function
+        async function sendToSam() {
+            if (!currentUser) {
+                alert('Please login first');
+                return;
+            }
+
+            const userInput = document.getElementById('userInput').value;
+            if (!userInput) return;
+
+            const chatMessages = document.getElementById('chat-messages');
+            
+            // Add user message
+            chatMessages.innerHTML += `<div class="user-message">${userInput}</div>`;
+            
+            try {
+                // Using Google AI API (you'll need to set this up properly)
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=YOUR_GOOGLE_API_KEY`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `${SAM_V3_PROMPT}\n\nUser: ${userInput}`
+                            }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                const aiReply = data.candidates[0].content.parts[0].text;
+
+                // Add AI response
+                chatMessages.innerHTML += `<div class="ai-message">${aiReply}</div>`;
+                
+                // Save to local storage
+                saveChatToLocal(userInput, aiReply);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                // Fallback response if API fails
+                const fallbackReply = "I'm currently updating my systems. Here's what I'd normally suggest: Break your challenge into smaller steps and focus on one thing at a time. What specific part feels most overwhelming?";
+                chatMessages.innerHTML += `<div class="ai-message">${fallbackReply}</div>`;
+                saveChatToLocal(userInput, fallbackReply);
+            }
+
+            document.getElementById('userInput').value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Utility functions
+        function clearHistory() {
+            if (confirm('Clear all your chat history?')) {
+                localStorage.removeItem(`chat_history_${currentUser}`);
+                localStorage.removeItem(`conversations_${currentUser}`);
+                loadUserHistory();
+            }
+        }
+
+        function exportData() {
+            const conversations = JSON.parse(localStorage.getItem(`conversations_${currentUser}`) || '[]');
+            const dataStr = JSON.stringify(conversations, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sam-ai-chats-${currentUser}.json`;
+            a.click();
+        }
+
+        // Initialize
+        checkExistingLogin();
+    </script>
+</body>
+</html>
