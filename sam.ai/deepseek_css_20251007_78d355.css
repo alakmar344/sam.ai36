@@ -1,0 +1,136 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+.container {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.sam-badge {
+    background: #ff6b6b;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+.header h1 {
+    color: #333;
+    margin: 10px 0;
+    font-size: 2.5em;
+}
+
+.header p {
+    color: #666;
+    margin: 0;
+}
+
+#chat-messages {
+    height: 400px;
+    overflow-y: auto;
+    border: 2px solid #e0e0e0;
+    padding: 20px;
+    border-radius: 15px;
+    margin: 20px 0;
+    background: #fafafa;
+}
+
+.user-message {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 18px 18px 5px 18px;
+    margin: 10px 0;
+    max-width: 80%;
+    margin-left: auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.ai-message {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 18px 18px 18px 5px;
+    margin: 10px 0;
+    border-left: 5px solid #667eea;
+    max-width: 80%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.dart-step {
+    margin: 10px 0;
+    padding-left: 15px;
+    border-left: 3px solid #667eea;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#userInput {
+    flex: 1;
+    padding: 15px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+#userInput:focus {
+    border-color: #667eea;
+}
+
+.send-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+.send-btn:hover {
+    transform: translateY(-2px);
+}
+
+.typing {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    margin: 10px 0;
+    display: none;
+}
+
+.error-message {
+    background: #ffebee;
+    padding: 15px;
+    border-radius: 15px;
+    margin: 10px 0;
+    border-left: 4px solid #f44336;
+}
