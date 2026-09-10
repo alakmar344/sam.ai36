@@ -1,5 +1,15 @@
 // Configuration
-const GEMINI_API_KEY = 'AIzaSyD4NJ68DJZTZDhRw8vIoBGB_EgMXMiju_A';
+// SECURITY: the API key is intentionally NOT hardcoded here.
+// It is read at runtime from the SAM_GEMINI_API_KEY environment variable
+// (e.g. a config.js file you keep local, or a build-time injection).
+// A key that was previously committed to this file has been REMOVED and
+// should be treated as compromised — revoke/rotate it in Google AI Studio.
+const GEMINI_API_KEY = (typeof SAM_GEMINI_API_KEY !== 'undefined' && SAM_GEMINI_API_KEY)
+    ? SAM_GEMINI_API_KEY
+    : '';
+if (!GEMINI_API_KEY) {
+    console.warn('SAM_GEMINI_API_KEY is not set — see README for setup.');
+}
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
 
 // SAM V3 Prompt
